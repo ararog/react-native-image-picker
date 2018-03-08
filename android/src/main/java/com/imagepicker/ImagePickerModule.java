@@ -403,6 +403,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
         String imageLocation = cursor.getString(1);
         File imageFile = new File(imageLocation);
         uri = Uri.fromFile(imageFile);
+        imageConfig = imageConfig.withOriginalFile(new File(imageFile.getAbsolutePath());
       }
     }
     catch (Exception e)
