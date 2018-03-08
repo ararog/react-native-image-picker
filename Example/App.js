@@ -18,6 +18,23 @@ export default class App extends React.Component {
     videoSource: null
   };
 
+  getLastPhotoTaken() {
+    ImagePicker.getLastPhotoTaken(response => {
+      if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        let source = { uri: response.uri };
+
+        // You can also display the image using data:
+        // let source = { uri: 'data:image/jpeg;base64,' + response.data };
+
+        this.setState({
+          avatarSource: source
+        });
+      }
+    });
+  }
+
   selectPhotoTapped() {
     const options = {
       quality: 1.0,
@@ -25,7 +42,8 @@ export default class App extends React.Component {
       maxHeight: 500,
       storageOptions: {
         skipBackup: true
-      }
+      },
+      customButtons: [{ name: 'last_taken', title: 'User Last Photo Taken' }]
     };
 
     ImagePicker.showImagePicker(options, (response) => {
@@ -38,7 +56,7 @@ export default class App extends React.Component {
         console.log('ImagePicker Error: ', response.error);
       }
       else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
+        this.getLastPhotoTaken()
       }
       else {
         let source = { uri: response.uri };

@@ -20,6 +20,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Patterns;
 import android.webkit.MimeTypeMap;
 import android.content.pm.PackageManager;
@@ -369,19 +370,11 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
       return;
     }
 
+    responseHelper.cleanResponse();
     this.options = options;
 
     if (!permissionsCheck(currentActivity, callback, REQUEST_PERMISSIONS_FOR_LIBRARY))
     {
-      return;
-    }
-
-    final ReadExifResult result = readExifInterface(responseHelper, imageConfig);
-
-    if (result.error != null)
-    {
-      responseHelper.invokeError(callback, result.error.getMessage());
-      this.callback = null;
       return;
     }
 
@@ -405,6 +398,14 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
         uri = Uri.fromFile(imageFile);
         imageConfig = imageConfig.withOriginalFile(new File(imageFile.getAbsolutePath()));
       }
+      else {
+        // image not in cache
+        responseHelper.putString("error", "Could not read photo");
+        responseHelper.putString("uri", uri.toString());
+        responseHelper.invokeResponse(callback);
+        this.callback = null;
+        return;
+      }
     }
     catch (Exception e)
     {
@@ -412,6 +413,15 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
       responseHelper.putString("error", "Could not read photo");
       responseHelper.putString("uri", uri.toString());
       responseHelper.invokeResponse(callback);
+      this.callback = null;
+      return;
+    }
+
+    final ReadExifResult result = readExifInterface(responseHelper, imageConfig);
+
+    if (result.error != null)
+    {
+      responseHelper.invokeError(callback, result.error.getMessage());
       this.callback = null;
       return;
     }
