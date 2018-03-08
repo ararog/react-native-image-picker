@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
@@ -352,6 +353,85 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
       e.printStackTrace();
       responseHelper.invokeError(callback, "Cannot launch photo library");
     }
+  }
+
+  public void getLastPhotoTaken()
+  {
+    this.getLastPhotoTaken(this.callback);
+  }
+  // NOTE: Currently not reentrant / doesn't support concurrent requests
+  @ReactMethod
+  public void getLastPhotoTaken(final Callback callback)
+  {
+    final Activity currentActivity = getCurrentActivity();
+    if (currentActivity == null) {
+      responseHelper.invokeError(callback, "can't find current Activity");
+      return;
+    }
+
+    this.options = options;
+
+    if (!permissionsCheck(currentActivity, callback, REQUEST_PERMISSIONS_FOR_LIBRARY))
+    {
+      return;
+    }
+
+    final ReadExifResult result = readExifInterface(responseHelper, imageConfig);
+
+    if (result.error != null)
+    {
+      responseHelper.invokeError(callback, result.error.getMessage());
+      this.callback = null;
+      return;
+    }
+
+    Uri uri = null;
+
+    String[] projection = new String[]{
+            MediaStore.Images.ImageColumns._ID,
+            MediaStore.Images.ImageColumns.DATA,
+            MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
+            MediaStore.Images.ImageColumns.DATE_TAKEN,
+            MediaStore.Images.ImageColumns.MIME_TYPE
+    };
+    final Cursor cursor = getContext().getContentResolver()
+            .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null,
+                    null, MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC");
+    try
+    {
+      if (cursor.moveToFirst()) {
+        String imageLocation = cursor.getString(1);
+        File imageFile = new File(imageLocation);
+        uri = Uri.fromFile(imageFile);
+      }
+    }
+    catch (Exception e)
+    {
+      // image not in cache
+      responseHelper.putString("error", "Could not read photo");
+      responseHelper.putString("uri", uri.toString());
+      responseHelper.invokeResponse(callback);
+      this.callback = null;
+      return;
+    }
+
+    BitmapFactory.Options options = new BitmapFactory.Options();
+    options.inJustDecodeBounds = true;
+    BitmapFactory.decodeFile(imageConfig.original.getAbsolutePath(), options);
+    int initialWidth = options.outWidth;
+    int initialHeight = options.outHeight;
+    updatedResultResponse(uri, imageConfig.original.getAbsolutePath());
+
+    // don't create a new file if contraint are respected
+    if (imageConfig.useOriginal(initialWidth, initialHeight, result.currentRotation))
+    {
+      responseHelper.putInt("width", initialWidth);
+      responseHelper.putInt("height", initialHeight);
+      fileScan(reactContext, imageConfig.original.getAbsolutePath());
+    }
+
+    responseHelper.invokeResponse(callback);
+    this.callback = null;
   }
 
   @Override
