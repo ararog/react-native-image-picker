@@ -401,8 +401,9 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
       else {
         // image not in cache
         responseHelper.putString("error", "Could not read photo");
-        if (uri)
+        if (uri != null) {
           responseHelper.putString("uri", uri.toString());
+        }
         responseHelper.invokeResponse(callback);
         this.callback = null;
         return;
@@ -412,8 +413,9 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
     {
       // image not in cache
       responseHelper.putString("error", "Could not read photo");
-      if (uri)
+      if (uri != null) {
         responseHelper.putString("uri", uri.toString());
+      }
       responseHelper.invokeResponse(callback);
       this.callback = null;
       return;
