@@ -201,6 +201,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
   public void doOnCancel()
   {
     responseHelper.invokeCancel(callback);
+    this.callback = null;    
   }
 
   public void launchCamera()
