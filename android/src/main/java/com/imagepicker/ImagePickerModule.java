@@ -105,6 +105,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
       if (!permissionsGranted)
       {
         responseHelper.invokeError(callback, "Permissions weren't granted");
+        Log.i("TAG", "ERROR!!!");
         return false;
       }
 
@@ -201,7 +202,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
   public void doOnCancel()
   {
     responseHelper.invokeCancel(callback);
-    this.callback = null;    
+    this.callback = null;
   }
 
   public void launchCamera()
