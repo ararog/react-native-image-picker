@@ -592,7 +592,8 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
 
   public void invokeCustomButton(@NonNull final String action)
   {
-    responseHelper.invokeCustomButton(this.callback, action);
+    responseHelper.invokeCustomButton(callback, action);
+    this.callback = null;
   }
 
   @Override
