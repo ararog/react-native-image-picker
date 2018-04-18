@@ -394,6 +394,9 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
     final Cursor cursor = getContext().getContentResolver()
             .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null,
                     null, MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC");
+
+    responseHelper.cleanResponse();
+    
     try
     {
       if (cursor.moveToFirst()) {
