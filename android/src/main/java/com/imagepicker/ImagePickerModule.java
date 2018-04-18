@@ -374,6 +374,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
       return;
     }
 
+    this.callback = callback;
     this.options = options;
 
     if (!permissionsCheck(currentActivity, callback, REQUEST_PERMISSIONS_FOR_LAST_PHOTO))
