@@ -106,7 +106,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
       {
         Log.i("TAG", "ERROR!!!");
         responseHelper.invokeError(callback, "Permissions weren't granted");
-        this.callback = null;
+        callback = null;
         return false;
       }
 
