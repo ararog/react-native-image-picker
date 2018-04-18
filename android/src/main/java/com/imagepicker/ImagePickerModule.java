@@ -60,12 +60,13 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
         implements ActivityEventListener
 {
 
-  public static final int REQUEST_LAUNCH_IMAGE_CAPTURE    = 13001;
-  public static final int REQUEST_LAUNCH_IMAGE_LIBRARY    = 13002;
-  public static final int REQUEST_LAUNCH_VIDEO_LIBRARY    = 13003;
-  public static final int REQUEST_LAUNCH_VIDEO_CAPTURE    = 13004;
-  public static final int REQUEST_PERMISSIONS_FOR_CAMERA  = 14001;
-  public static final int REQUEST_PERMISSIONS_FOR_LIBRARY = 14002;
+  public static final int REQUEST_LAUNCH_IMAGE_CAPTURE       = 13001;
+  public static final int REQUEST_LAUNCH_IMAGE_LIBRARY       = 13002;
+  public static final int REQUEST_LAUNCH_VIDEO_LIBRARY       = 13003;
+  public static final int REQUEST_LAUNCH_VIDEO_CAPTURE       = 13004;
+  public static final int REQUEST_PERMISSIONS_FOR_CAMERA     = 14001;
+  public static final int REQUEST_PERMISSIONS_FOR_LIBRARY    = 14002;
+  public static final int REQUEST_PERMISSIONS_FOR_LAST_PHOTO = 14003;
 
   private final ReactApplicationContext reactContext;
   private final int dialogThemeId;
@@ -104,9 +105,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
 
       if (!permissionsGranted)
       {
-        Log.i("TAG", "ERROR!!!");
         responseHelper.invokeError(callback, "Permissions weren't granted");
-        callback = null;
         return false;
       }
 
@@ -120,6 +119,9 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
           launchImageLibrary(options, callback);
           break;
 
+        case REQUEST_PERMISSIONS_FOR_LAST_PHOTO:
+          getLastPhotoTaken(callback);
+          break;
       }
       return true;
     }
@@ -203,7 +205,6 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
   public void doOnCancel()
   {
     responseHelper.invokeCancel(callback);
-    this.callback = null;
   }
 
   public void launchCamera()
@@ -373,10 +374,9 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
       return;
     }
 
-    responseHelper.cleanResponse();
     this.options = options;
 
-    if (!permissionsCheck(currentActivity, callback, REQUEST_PERMISSIONS_FOR_LIBRARY))
+    if (!permissionsCheck(currentActivity, callback, REQUEST_PERMISSIONS_FOR_LAST_PHOTO))
     {
       return;
     }
